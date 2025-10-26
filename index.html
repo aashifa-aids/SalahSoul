@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SalahMate 🌙</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>🕌 SalahMate</h1>
+
+    {% if finished %}
+      <p class="summary">📊 Daily Salah Summary: You prayed {{ prayed }} out of 5 Salah today.</p>
+      <p class="final">{{ final_msg }}</p>
+      <a href="{{ url_for('reset') }}" class="reset">🔁 Reset Demo</a>
+    {% else %}
+      <p class="prompt">It's time for <strong>{{ prayer }}</strong> Salah</p>
+
+      {% if message %}
+        <div class="message">{{ message }}</div>
+      {% endif %}
+
+      <form action="{{ url_for('response') }}" method="post" class="btns">
+        <button class="yes" name="answer" value="yes">✅ Yes, I prayed</button>
+        <button class="no"  name="answer" value="no">❌ Not yet</button>
+      </form>
+
+      <p class="progress">You have prayed {{ prayed }} so far.</p>
+    {% endif %}
+
+    <p class="note">This is a demo. Use Reset to run again.</p>
+  </div>
+</body>
+</html>
