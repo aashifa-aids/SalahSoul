@@ -2,34 +2,294 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SalahMate 🌙</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salah Motivation App</title>
+  <style>
+    :root {
+      --primary-color: #388E3C;
+      --secondary-color: #4CAF50;
+      --background-color: #F4F6F9;
+      --card-color: #FFFFFF;
+      --text-color: #333333;
+      --success-color: #4CAF50;
+      --late-color: #FFC107;
+      --missed-color: #E53935;
+      --excused-color: #03A9F4;
+    }
+
+    body {
+      font-family: 'Poppins', Arial, sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    #app-container {
+      width: 100%;
+      max-width: 480px;
+      background-color: var(--card-color);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      border-radius: 15px;
+      overflow: hidden;
+      padding-bottom: 20px;
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Header Section */
+    #prayer-dashboard {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    #prayer-dashboard h1 {
+      margin-top: 0;
+      font-size: 1.8em;
+      letter-spacing: 1px;
+    }
+
+    .prayer-list {
+      margin-top: 15px;
+    }
+
+    .prayer-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      margin-bottom: 8px;
+      background-color: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      font-size: 1.1em;
+    }
+
+    .time {
+      font-weight: normal;
+      font-size: 0.9em;
+      opacity: 0.9;
+    }
+
+    .log-btn {
+      padding: 6px 15px;
+      border: none;
+      border-radius: 20px;
+      background-color: white;
+      color: var(--primary-color);
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .log-btn:hover {
+      background-color: var(--secondary-color);
+      color: white;
+      transform: scale(1.05);
+    }
+
+    /* Content Section */
+    #content-section {
+      padding: 20px;
+    }
+
+    #content-section h2 {
+      color: var(--secondary-color);
+      border-bottom: 2px solid var(--secondary-color);
+      padding-bottom: 5px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    #hadith-display {
+      padding: 20px;
+      background-color: var(--background-color);
+      border-radius: 10px;
+      text-align: center;
+      font-style: italic;
+    }
+
+    #advice-display {
+      padding: 20px;
+      background-color: #E8F5E9;
+      border-radius: 10px;
+      text-align: center;
+      margin-top: 15px;
+      font-size: 0.95em;
+      line-height: 1.5;
+    }
+
+    /* Log Popup */
+    #log-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 85%;
+      max-width: 380px;
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      text-align: center;
+      display: none;
+    }
+
+    .status-options button {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .status-btn.success { background-color: var(--success-color); }
+    .status-btn.late { background-color: var(--late-color); }
+    .status-btn.missed { background-color: var(--missed-color); }
+    .status-btn.excused { background-color: var(--excused-color); }
+
+    .confirm-btn {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 20px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🕌 SalahMate</h1>
+  <div id="app-container">
+    <header id="prayer-dashboard">
+      <h1>Today's Salah</h1>
+      <div class="prayer-list">
+        <div class="prayer-item" data-prayer="fajr">
+          <span class="name">Fajr</span>
+          <span class="time">05:25 AM</span>
+          <button class="log-btn">Log</button>
+        </div>
+        <div class="prayer-item" data-prayer="dhuhr">
+          <span class="name">Dhuhr</span>
+          <span class="time">12:15 PM</span>
+          <button class="log-btn">Log</button>
+        </div>
+        <div class="prayer-item" data-prayer="asr">
+          <span class="name">Asr</span>
+          <span class="time">03:45 PM</span>
+          <button class="log-btn">Log</button>
+        </div>
+        <div class="prayer-item" data-prayer="maghrib">
+          <span class="name">Maghrib</span>
+          <span class="time">06:20 PM</span>
+          <button class="log-btn">Log</button>
+        </div>
+        <div class="prayer-item" data-prayer="isha">
+          <span class="name">Isha</span>
+          <span class="time">08:00 PM</span>
+          <button class="log-btn">Log</button>
+        </div>
+      </div>
+    </header>
 
-    {% if finished %}
-      <p class="summary">📊 Daily Salah Summary: You prayed {{ prayed }} out of 5 Salah today.</p>
-      <p class="final">{{ final_msg }}</p>
-      <a href="{{ url_for('reset') }}" class="reset">🔁 Reset Demo</a>
-    {% else %}
-      <p class="prompt">It's time for <strong>{{ prayer }}</strong> Salah</p>
+    <section id="content-section">
+      <h2>Daily Inspiration 🌿</h2>
+      <div id="hadith-display">
+        <p>"The best of deeds is prayer at its stipulated time."</p>
+        <span class="source">- Sahih Hadith</span>
+      </div>
+      <div id="advice-display">
+        🌸 Stay consistent with your Salah. It’s your daily meeting with Allah — your soul’s true peace. 🌸
+      </div>
+    </section>
 
-      {% if message %}
-        <div class="message">{{ message }}</div>
-      {% endif %}
-
-      <form action="{{ url_for('response') }}" method="post" class="btns">
-        <button class="yes" name="answer" value="yes">✅ Yes, I prayed</button>
-        <button class="no"  name="answer" value="no">❌ Not yet</button>
-      </form>
-
-      <p class="progress">You have prayed {{ prayed }} so far.</p>
-    {% endif %}
-
-    <p class="note">This is a demo. Use Reset to run again.</p>
+    <div id="log-popup">
+      <h2>Log Salah Status</h2>
+      <div class="status-options">
+        <button class="status-btn success">Prayed on Time</button>
+        <button class="status-btn late">Prayed Late</button>
+        <button class="status-btn missed">Missed</button>
+        <button class="status-btn excused">Valid Excuse</button>
+      </div>
+      <button class="confirm-btn">Confirm</button>
+    </div>
   </div>
+
+  <script>
+    const logButtons = document.querySelectorAll('.log-btn');
+    const logPopup = document.getElementById('log-popup');
+    const confirmBtn = document.querySelector('.confirm-btn');
+    const adviceDisplay = document.getElementById('advice-display');
+    let selectedPrayer = null;
+    let selectedStatus = null;
+
+    const adviceMessages = {
+      success: [
+        "MashaAllah 🌟 Keep it up! Every prayer strengthens your bond with Allah.",
+        "Beautiful! Angels recorded your prayer at its best time. 💫"
+      ],
+      late: [
+        "You made it, Alhamdulillah! Next time, try to be a little earlier. Allah loves consistency. 🌙",
+        "Remember: Salah on time brings peace to the heart — you’re doing great, keep improving!"
+      ],
+      missed: [
+        "Don’t lose hope 💚. Even the best among us sometimes falter. Renew your intention — Allah loves those who return to Him.",
+        "A missed Salah isn’t failure — it’s a reminder. Stand again with humility and determination 🌿."
+      ],
+      excused: [
+        "Allah is Most Understanding and Merciful 🌸. Take care of yourself and come back stronger.",
+        "Your intention counts — Allah knows your situation. 🤍"
+      ]
+    };
+
+    const shortStories = [
+      "Umar ibn Al-Khattab (RA) once said: 'There is no share of Islam for the one who abandons prayer.' Yet, he also encouraged hope — reminding that sincere repentance makes one pure again.",
+      "When Bilal (RA) called the Adhan, even the Prophet ﷺ smiled. Remember — every Salah call is a personal invitation from Allah to peace.",
+      "A man once asked the Prophet ﷺ, 'What is the best deed?' He said, 'Prayer at its time.' (Bukhari) — it’s simple yet deeply beloved."
+    ];
+
+    logButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedPrayer = btn.parentElement.dataset.prayer;
+        logPopup.style.display = 'block';
+      });
+    });
+
+    document.querySelectorAll('.status-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedStatus = btn.classList.contains('success') ? 'success' :
+                         btn.classList.contains('late') ? 'late' :
+                         btn.classList.contains('missed') ? 'missed' : 'excused';
+      });
+    });
+
+    confirmBtn.addEventListener('click', () => {
+      logPopup.style.display = 'none';
+      if (!selectedStatus) return;
+
+      const message = adviceMessages[selectedStatus][Math.floor(Math.random() * adviceMessages[selectedStatus].length)];
+      const story = shortStories[Math.floor(Math.random() * shortStories.length)];
+      adviceDisplay.innerHTML = `
+        <h3>🌷 Advice for You:</h3>
+        <p>${message}</p>
+        <h4>📖 Story to Reflect On:</h4>
+        <p>${story}</p>
+      `;
+      selectedStatus = null;
+      selectedPrayer = null;
+    });
+  </script>
 </body>
 </html>
